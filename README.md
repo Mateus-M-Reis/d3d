@@ -6,7 +6,65 @@ d3d packages the rendering pipeline, PBR materials, lighting, shadows, cameras
 and gameplay-ready prefabs that a 3D game needs, so a project can start at
 "beautiful 3D scene" instead of "empty render script".
 
-> Status: **foundation / design**. The API is not stable yet.
+> Status: **M1 vertical slice**. HDR PBR shading, cascaded directional shadows
+> and ACES tone mapping are implemented and compile with Defold 1.14.0.
+> Bloom, FXAA, IBL and clustered lighting are next.
+
+## What works today
+
+- HDR forward renderer (`RGBA16F` scene target, linear lighting).
+- Metallic-roughness PBR: GGX distribution, Smith visibility, Schlick Fresnel.
+- Defold `LightBuffer` integration: ambient, directional, point and spot lights.
+- Three-cascade directional shadow maps with PCF, normal-offset bias and
+  texel-snapped cascade fitting.
+- Distance fog.
+- ACES tone mapping + gamma in a fullscreen post pass.
+- A self-contained example: orbit camera, moving sun, coloured cubes and
+  checker-textured PBR material.
+
+## Quick start
+
+Requirements: **Defold 1.14+** (modern shader pipeline) and Python 3 only if you
+want to regenerate the binary assets.
+
+```bash
+# Build headlessly (downloads a pinned JDK 25 + bob.jar into .tools/)
+./scripts/build.sh
+
+# Or open game.project in the Defold editor and press Build & Run.
+```
+
+The example auto-orbits the camera and slowly rotates the sun so the cascades
+and shadow filtering are visible immediately.
+
+## Repository layout
+
+```
+d3d/                 the library: render script, shaders, materials, modules
+example/             the Defold project used to develop and demo the library
+docs/                architecture, research notes, offline Defold documentation
+docs/defold/         official Defold docs mirror (see its README)
+scripts/             docs sync and headless build
+tools/               reproducible asset / collection generators
+game.project         the example project (or add d3d/ as a library dependency)
+```
+
+### Pipeline at a glance
+
+```
+shadow cascades (3 × depth) → HDR scene (RGBA16F + depth)
+    → ACES tonemap + gamma → GUI
+```
+
+The render script reads the built-in camera component and light components; no
+parallel camera or light system is introduced. See `docs/ARCHITECTURE.md`.
+
+## Documentation
+
+- `docs/ARCHITECTURE.md` — frame graph, module layout, conventions, milestones.
+- `docs/RESEARCH.md` — what d3d takes from Scene3D and Illumination, and why.
+- `docs/IMPLEMENTATION.md` — what the M1 slice does and what is still missing.
+- `docs/defold/` — 444 official Defold manual/API/example pages, offline.
 
 ## Why
 
@@ -39,16 +97,6 @@ than reimplementing what the engine now provides.
 - **Portable** — desktop, mobile and HTML5. No platform-specific code in the
   core path.
 - **Documented** — a complete manual, API reference and runnable examples.
-
-## Repository layout (planned)
-
-```
-d3d/                 the library itself (Lua, shaders, materials, prefabs)
-examples/            a Defold project that exercises every feature
-docs/                architecture, research notes and the offline Defold docs
-docs/defold/         official Defold documentation mirror (see its README)
-scripts/             tooling (docs sync, validation, release)
-```
 
 ## References
 

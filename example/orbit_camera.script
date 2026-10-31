@@ -1,0 +1,19 @@
+go.property("target_y", 0.8)
+go.property("distance", 7.0)
+go.property("speed", 4.0)
+go.property("pitch", -12.0)
+
+function init(self)
+    self.angle = 0.0
+end
+
+function update(self, dt)
+    self.angle = self.angle + math.rad(self.speed) * dt
+
+    local rotation = vmath.quat_rotation_y(self.angle) * vmath.quat_rotation_x(math.rad(self.pitch))
+    local offset = vmath.rotate(rotation, vmath.vector3(0, 0, self.distance))
+    local target = vmath.vector3(0, self.target_y, 0)
+
+    go.set_position(target + offset)
+    go.set_rotation(rotation)
+end

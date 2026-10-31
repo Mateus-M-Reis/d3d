@@ -1,0 +1,21 @@
+go.property("speed", 2.0)
+
+local function send_direction()
+    local rotation = go.get_rotation()
+    local direction = vmath.rotate(rotation, vmath.vector3(0, 0, -1))
+    msg.post("@render:", "d3d_set_sun", { direction = direction })
+end
+
+function init(self)
+    send_direction()
+end
+
+function update(self, dt)
+    if self.speed == 0 then
+        return
+    end
+
+    local rotation = go.get_rotation()
+    go.set_rotation(vmath.quat_rotation_y(math.rad(self.speed) * dt) * rotation)
+    send_direction()
+end

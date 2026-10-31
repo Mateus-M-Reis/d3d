@@ -1,0 +1,6 @@
+script: "/d3d/d3d.render_script"
+
+render_resources {
+  name: "d3d_shadow_depth"
+  path: "/d3d/materials/shadow_depth.material"
+}

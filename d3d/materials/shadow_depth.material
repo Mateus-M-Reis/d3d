@@ -1,0 +1,14 @@
+name: "d3d_shadow_depth"
+tags: "d3d_model"
+vertex_program: "/d3d/shaders/shadow_depth.vp"
+fragment_program: "/d3d/shaders/shadow_depth.fp"
+vertex_space: VERTEX_SPACE_LOCAL
+
+vertex_constants {
+  name: "mtx_view"
+  type: CONSTANT_TYPE_VIEW
+}
+vertex_constants {
+  name: "mtx_proj"
+  type: CONSTANT_TYPE_PROJECTION
+}

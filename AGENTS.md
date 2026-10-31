@@ -9,12 +9,21 @@ Guidance for AI agents working on **d3d**, a modular 3D extension for the
 2. `docs/ARCHITECTURE.md` — frame graph, layout, conventions, milestones.
 3. `docs/RESEARCH.md` — what was learned from Scene3D and Illumination and why
    the architecture differs.
+4. `docs/IMPLEMENTATION.md` — current M1 status and known gaps.
 
 ## Repository state
 
-The project is at **M0: foundation/design**. There is no library code or example
-project yet. Do not assume APIs described in the architecture are implemented;
-check the tree first.
+The project is at **M1: working vertical slice**. The following are implemented
+and compile with Defold 1.14.0 / bob 1.14.0:
+
+- `d3d/d3d.render_script` — HDR scene pass, three shadow cascades, ACES post.
+- `d3d/render/{config,csm,targets}.lua` — configuration, CSM fitting, targets.
+- `d3d/shaders/{pbr,shadow_depth,fullscreen,post}.*` — modern GLSL only.
+- `d3d/materials/{pbr,shadow_depth,post}.material`.
+- `example/` — orbit camera, moving sun, PBR cubes, generated assets.
+
+Not implemented yet: IBL, bloom, FXAA, spot/point shadow maps, clustered
+lighting, camera input rigs, mobile quality tiers.
 
 The two reference projects in the repository root are **local study copies**:
 
@@ -81,8 +90,18 @@ Never edit `docs/defold/` by hand. Refresh it with:
 
 ## Validation
 
-There is no Defold engine or `bob` in the environment yet. Until
-`scripts/build.sh` exists, validate what you can:
+Build the example with the pinned toolchain:
+
+```bash
+./scripts/build.sh
+```
+
+The first run downloads JDK 25 and `bob.jar` into `.tools/` (git-ignored). A
+successful build ends with `100% Building` and produces
+`build/default/*.shbundlec`. Always check the exit code; bob prints some errors
+without a non-zero status when output is piped.
+
+Faster local checks:
 
 ```bash
 # Lua syntax
@@ -92,9 +111,10 @@ luajit -bl path/to/file.lua >/dev/null
 glslangValidator -S frag path/to/file.fs
 ```
 
-If you add a build pipeline, prefer a pinned `bob.jar` plus a downloaded JRE and
-document the exact commands. Do not commit `bob.jar`, JRE archives or build
-output.
+The example has not been run inside a full engine in this environment yet, so
+treat visual output as unverified until a runtime capture is added.
+
+Do not commit `bob.jar`, JRE archives, `build/` or `.tools/`.
 
 ## Commits
 

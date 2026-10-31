@@ -1,0 +1,9 @@
+# Keep the engine project focused on the extension and the example.
+/docs
+/defold-scene3d-main
+/defold-illumination-master
+/.tools
+/scripts
+/tools
+/build
+/.git

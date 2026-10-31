@@ -1,0 +1,15 @@
+#version 140
+
+// Fullscreen triangle-pair pass. The mesh is authored in clip space (-1..1),
+// so the transform is intentionally ignored.
+
+in highp vec4 position;
+in mediump vec2 texcoord0;
+
+out mediump vec2 var_texcoord0;
+
+void main()
+{
+    var_texcoord0 = texcoord0;
+    gl_Position = vec4(position.xy, 0.0, 1.0);
+}

@@ -1,0 +1,152 @@
+name: "d3d_pbr"
+tags: "d3d_model"
+vertex_program: "/d3d/shaders/pbr.vp"
+fragment_program: "/d3d/shaders/pbr.fp"
+vertex_space: VERTEX_SPACE_LOCAL
+
+vertex_constants {
+  name: "mtx_view"
+  type: CONSTANT_TYPE_VIEW
+}
+vertex_constants {
+  name: "mtx_proj"
+  type: CONSTANT_TYPE_PROJECTION
+}
+vertex_constants {
+  name: "mtx_shadow0"
+  type: CONSTANT_TYPE_USER_MATRIX4
+  value {
+  }
+}
+vertex_constants {
+  name: "mtx_shadow1"
+  type: CONSTANT_TYPE_USER_MATRIX4
+  value {
+  }
+}
+vertex_constants {
+  name: "mtx_shadow2"
+  type: CONSTANT_TYPE_USER_MATRIX4
+  value {
+  }
+}
+
+fragment_constants {
+  name: "camera_position"
+  type: CONSTANT_TYPE_USER
+  value {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+}
+fragment_constants {
+  name: "fog_color"
+  type: CONSTANT_TYPE_USER
+  value {
+    x: 0.55
+    y: 0.65
+    z: 0.8
+    w: 1.0
+  }
+}
+fragment_constants {
+  name: "fog_params"
+  type: CONSTANT_TYPE_USER
+  value {
+    x: 0.01
+    y: 1.0
+    z: 0.0
+    w: 0.0
+  }
+}
+fragment_constants {
+  name: "cascade_splits"
+  type: CONSTANT_TYPE_USER
+  value {
+    x: 15.0
+    y: 40.0
+    z: 100.0
+    w: 3.0
+  }
+}
+fragment_constants {
+  name: "shadow_params"
+  type: CONSTANT_TYPE_USER
+  value {
+    x: 0.001
+    y: 3.0
+    z: 0.0005
+    w: 0.0025
+  }
+}
+fragment_constants {
+  name: "base_color"
+  type: CONSTANT_TYPE_USER
+  value {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+    w: 1.0
+  }
+}
+fragment_constants {
+  name: "material_params"
+  type: CONSTANT_TYPE_USER
+  value {
+    x: 0.0
+    y: 0.6
+    z: 0.0
+    w: 0.5
+  }
+}
+fragment_constants {
+  name: "emissive_factor"
+  type: CONSTANT_TYPE_USER
+  value {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+}
+
+samplers {
+  name: "albedo_texture"
+  wrap_u: WRAP_MODE_REPEAT
+  wrap_v: WRAP_MODE_REPEAT
+  filter_min: FILTER_MODE_MIN_LINEAR_MIPMAP_LINEAR
+  filter_mag: FILTER_MODE_MAG_LINEAR
+  max_anisotropy: 4.0
+}
+samplers {
+  name: "normal_texture"
+  wrap_u: WRAP_MODE_REPEAT
+  wrap_v: WRAP_MODE_REPEAT
+  filter_min: FILTER_MODE_MIN_LINEAR_MIPMAP_LINEAR
+  filter_mag: FILTER_MODE_MAG_LINEAR
+  max_anisotropy: 4.0
+}
+samplers {
+  name: "shadow_map0"
+  wrap_u: WRAP_MODE_CLAMP_TO_EDGE
+  wrap_v: WRAP_MODE_CLAMP_TO_EDGE
+  filter_min: FILTER_MODE_MIN_NEAREST
+  filter_mag: FILTER_MODE_MAG_NEAREST
+}
+samplers {
+  name: "shadow_map1"
+  wrap_u: WRAP_MODE_CLAMP_TO_EDGE
+  wrap_v: WRAP_MODE_CLAMP_TO_EDGE
+  filter_min: FILTER_MODE_MIN_NEAREST
+  filter_mag: FILTER_MODE_MAG_NEAREST
+}
+samplers {
+  name: "shadow_map2"
+  wrap_u: WRAP_MODE_CLAMP_TO_EDGE
+  wrap_v: WRAP_MODE_CLAMP_TO_EDGE
+  filter_min: FILTER_MODE_MIN_NEAREST
+  filter_mag: FILTER_MODE_MAG_NEAREST
+}
+max_page_count: 0

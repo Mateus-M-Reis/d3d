@@ -1,0 +1,306 @@
+-- d3d render script.
+--
+-- Passes:
+--   1. shadow cascades (depth-only, one target per cascade)
+--   2. scene into an HDR target (opaque PBR)
+--   3. exposure + ACES tone mapping + gamma to the default framebuffer
+--   4. GUI/text on top
+--
+-- The render script owns all frame state. Gameplay scripts configure it with
+-- messages; they never mutate module state behind its back.
+
+local config = require("d3d.render.config")
+local csm = require("d3d.render.csm")
+local targets = require("d3d.render.targets")
+
+local MSG_SET_SUN = hash("d3d_set_sun")
+local MSG_WINDOW_RESIZED = hash("window_resized")
+
+local SHADOW_MATERIAL = "d3d_shadow_depth"
+local SHADOW_SAMPLERS = { "shadow_map0", "shadow_map1", "shadow_map2" }
+
+local function normalise_or_nil(v)
+    if not v or vmath.length(v) < 1e-6 then
+        return nil
+    end
+    return vmath.normalize(v)
+end
+
+local function make_frame_constants()
+    local constants = render.constant_buffer()
+    constants.camera_position = vmath.vector4(0, 0, 0, 1)
+    constants.fog_color = vmath.vector4(0.55, 0.65, 0.8, 1)
+    constants.fog_params = vmath.vector4(0.012, 1, 0, 0)
+    constants.cascade_splits = vmath.vector4(0, 0, 0, 0)
+    constants.shadow_params = vmath.vector4(1 / 1024, 3, 0.0008, 0.003)
+    constants.mtx_shadow0 = vmath.matrix4()
+    constants.mtx_shadow1 = vmath.matrix4()
+    constants.mtx_shadow2 = vmath.matrix4()
+    return constants
+end
+
+local function make_post_constants()
+    local constants = render.constant_buffer()
+    constants.post_params = vmath.vector4(config.exposure, 1.0, 2.2, 0.12)
+    return constants
+end
+
+local function set_default_camera(self)
+    self.view = vmath.matrix4_look_at(
+        vmath.vector3(0, 2.2, 7),
+        vmath.vector3(0, 0.8, 0),
+        vmath.vector3(0, 1, 0)
+    )
+    self.projection = vmath.matrix4_perspective(math.rad(45), 16 / 9, 0.1, 100)
+    render.set_camera()
+    render.set_view(self.view)
+    render.set_projection(self.projection)
+end
+
+local function update_scene_target(self)
+    local width = math.max(1, render.get_window_width())
+    local height = math.max(1, render.get_window_height())
+
+    if width == self.width and height == self.height and self.scene_target then
+        return true
+    end
+
+    targets.delete(self.scene_target)
+    self.scene_target = targets.create_scene(width, height, config.hdr)
+    self.width = width
+    self.height = height
+    return true
+end
+
+local function create_shadow_targets(self)
+    self.shadow_targets = {}
+    if not config.shadows then
+        return
+    end
+
+    for i = 1, config.cascade_count do
+        self.shadow_targets[i] = targets.create_shadow(config.shadow_resolution)
+    end
+end
+
+local function render_shadows(self, cascades)
+    if not config.shadows or #self.shadow_targets == 0 then
+        return
+    end
+
+    render.set_camera()
+    render.set_color_mask(false, false, false, false)
+    render.set_depth_mask(true)
+    render.set_depth_func(graphics.COMPARE_FUNC_LEQUAL)
+    render.enable_state(graphics.STATE_DEPTH_TEST)
+    render.enable_state(graphics.STATE_CULL_FACE)
+    render.set_cull_face(graphics.FACE_TYPE_FRONT)
+    render.enable_state(graphics.STATE_POLYGON_OFFSET_FILL)
+    render.set_polygon_offset(2.0, 4.0)
+    render.enable_material(SHADOW_MATERIAL)
+
+    for i, cascade in ipairs(cascades) do
+        render.set_render_target(self.shadow_targets[i])
+        render.set_viewport(0, 0, config.shadow_resolution, config.shadow_resolution)
+        render.clear({ [graphics.BUFFER_TYPE_DEPTH_BIT] = 1.0 })
+        render.set_view(cascade.view)
+        render.set_projection(cascade.projection)
+        render.draw(self.pred_model, { frustum = cascade.frustum })
+    end
+
+    render.disable_material()
+    render.set_polygon_offset(0.0, 0.0)
+    render.disable_state(graphics.STATE_POLYGON_OFFSET_FILL)
+    render.set_cull_face(graphics.FACE_TYPE_BACK)
+    render.set_color_mask(true, true, true, true)
+end
+
+local function bind_shadow_textures(self)
+    if not config.shadows then
+        return
+    end
+
+    for i, sampler in ipairs(SHADOW_SAMPLERS) do
+        local target = self.shadow_targets[i]
+        if target then
+            render.enable_texture(sampler, target, graphics.BUFFER_TYPE_DEPTH_BIT)
+        end
+    end
+end
+
+local function unbind_shadow_textures()
+    for _, sampler in ipairs(SHADOW_SAMPLERS) do
+        render.disable_texture(sampler)
+    end
+end
+
+local function update_frame_constants(self, view_position, splits, cascades)
+    local frame = self.frame
+    frame.camera_position = vmath.vector4(view_position.x, view_position.y, view_position.z, 1)
+    frame.fog_color = vmath.vector4(
+        config.fog_color_red,
+        config.fog_color_green,
+        config.fog_color_blue,
+        1
+    )
+    frame.fog_params = vmath.vector4(config.fog_density, 1.0, 0, 0)
+    frame.cascade_splits = vmath.vector4(
+        splits[1] or 0,
+        splits[2] or 0,
+        splits[3] or 0,
+        #cascades
+    )
+    frame.shadow_params = vmath.vector4(
+        1.0 / config.shadow_resolution,
+        3.0,
+        config.shadow_bias,
+        config.shadow_slope_bias
+    )
+
+    for i = 1, 3 do
+        local cascade = cascades[i]
+        frame["mtx_shadow" .. (i - 1)] = cascade and cascade.matrix or vmath.matrix4()
+    end
+end
+
+function init(self)
+    self.pred_model = render.predicate({ "d3d_model" })
+    self.pred_post = render.predicate({ "d3d_post" })
+    self.pred_gui = render.predicate({ "gui" })
+    self.pred_text = render.predicate({ "text" })
+
+    self.camera_url = config.camera
+    self.sun_direction = vmath.vector3(0.413, -0.766, -0.492)
+    self.width = 0
+    self.height = 0
+    self.frame = make_frame_constants()
+    self.post = make_post_constants()
+
+    update_scene_target(self)
+    create_shadow_targets(self)
+end
+
+function update(self, dt)
+    if not update_scene_target(self) then
+        return
+    end
+
+    local width = self.width
+    local height = self.height
+    local aspect = width / height
+
+    local camera_enabled = self.camera_url and camera.get_enabled(self.camera_url)
+    local view, projection
+    local near_z, far_z, fov
+
+    if camera_enabled then
+        view = camera.get_view(self.camera_url)
+        projection = camera.get_projection(self.camera_url)
+        near_z = camera.get_near_z(self.camera_url)
+        far_z = camera.get_far_z(self.camera_url)
+        fov = camera.get_fov(self.camera_url)
+    else
+        set_default_camera(self)
+        view = self.view
+        projection = self.projection
+        near_z, far_z, fov = 0.1, 100, math.rad(45)
+    end
+
+    local inv_view = vmath.inv(view)
+    local view_position = vmath.vector3(inv_view.c3.x, inv_view.c3.y, inv_view.c3.z)
+
+    local cascades = {}
+    local splits = {}
+    if config.shadows then
+        cascades, splits = csm.compute(
+            view,
+            fov,
+            aspect,
+            near_z,
+            far_z,
+            self.sun_direction,
+            {
+                count = config.cascade_count,
+                resolution = config.shadow_resolution,
+                lambda = config.shadow_lambda,
+            }
+        )
+        render_shadows(self, cascades)
+    end
+
+    update_frame_constants(self, view_position, splits, cascades)
+
+    -- Scene pass.
+    render.set_render_target(self.scene_target)
+    render.set_viewport(0, 0, width, height)
+    render.clear({
+        [graphics.BUFFER_TYPE_COLOR0_BIT] = vmath.vector4(
+            config.clear_red,
+            config.clear_green,
+            config.clear_blue,
+            1
+        ),
+        [graphics.BUFFER_TYPE_DEPTH_BIT] = 1.0,
+    })
+
+    if camera_enabled then
+        render.set_camera(self.camera_url, { use_frustum = true })
+    else
+        set_default_camera(self)
+    end
+
+    render.set_depth_mask(true)
+    render.set_depth_func(graphics.COMPARE_FUNC_LESS)
+    render.enable_state(graphics.STATE_DEPTH_TEST)
+    render.enable_state(graphics.STATE_CULL_FACE)
+    render.set_cull_face(graphics.FACE_TYPE_BACK)
+    render.disable_state(graphics.STATE_BLEND)
+
+    bind_shadow_textures(self)
+    render.draw(self.pred_model, { constants = self.frame })
+    unbind_shadow_textures()
+
+    -- Present pass.
+    render.set_camera()
+    render.set_render_target(render.RENDER_TARGET_DEFAULT)
+    render.set_viewport(0, 0, width, height)
+    render.set_view(vmath.matrix4())
+    render.set_projection(vmath.matrix4())
+    render.disable_state(graphics.STATE_DEPTH_TEST)
+    render.disable_state(graphics.STATE_CULL_FACE)
+    render.disable_state(graphics.STATE_BLEND)
+    render.set_depth_mask(false)
+
+    render.enable_texture("scene_texture", self.scene_target, graphics.BUFFER_TYPE_COLOR0_BIT)
+    render.draw(self.pred_post, { constants = self.post })
+    render.disable_texture("scene_texture")
+
+    -- GUI on top of the tone-mapped image.
+    render.set_view(vmath.matrix4())
+    render.set_projection(vmath.matrix4_orthographic(0, width, 0, height, -1, 1))
+    render.enable_state(graphics.STATE_STENCIL_TEST)
+    render.draw(self.pred_gui)
+    render.draw(self.pred_text)
+    render.disable_state(graphics.STATE_STENCIL_TEST)
+end
+
+function on_message(self, message_id, message)
+    if message_id == MSG_SET_SUN then
+        local direction = normalise_or_nil(message.direction)
+        if direction then
+            self.sun_direction = direction
+        end
+    elseif message_id == MSG_WINDOW_RESIZED then
+        update_scene_target(self)
+    end
+end
+
+function final(self)
+    targets.delete(self.scene_target)
+    self.scene_target = nil
+
+    for i = 1, #(self.shadow_targets or {}) do
+        targets.delete(self.shadow_targets[i])
+    end
+    self.shadow_targets = {}
+end
