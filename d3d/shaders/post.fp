@@ -25,7 +25,10 @@ vec3 aces_fitted(vec3 x)
 
 void main()
 {
-    vec3 color = texture(scene_texture, var_texcoord0).rgb;
+    // The generated fullscreen quad uses glTF's top-left UV convention,
+    // while render-target textures are sampled bottom-left; flip V.
+    vec2 uv = vec2(var_texcoord0.x, 1.0 - var_texcoord0.y);
+    vec3 color = texture(scene_texture, uv).rgb;
     color *= post_params.x;
 
     if (post_params.y > 0.5)

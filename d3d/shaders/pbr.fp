@@ -93,6 +93,26 @@ vec3 fresnel_schlick(float cos_theta, vec3 f0)
     return f0 + (vec3(1.0) - f0) * pow(1.0 - cos_theta, 5.0);
 }
 
+// Derivative-based cotangent frame (no tangent attribute required).
+mat3 cotangent_frame(vec3 normal, vec3 position, vec2 uv)
+{
+    vec3 dp1 = dFdx(position);
+    vec3 dp2 = dFdy(position);
+    vec2 duv1 = dFdx(uv);
+    vec2 duv2 = dFdy(uv);
+
+    vec3 dp2_perp = cross(dp2, normal);
+    vec3 dp1_perp = cross(normal, dp1);
+
+    vec3 tangent = dp2_perp * duv1.x + dp1_perp * duv2.x;
+    vec3 bitangent = dp2_perp * duv1.y + dp1_perp * duv2.y;
+
+    // Guard against degenerate UVs where both derivatives are zero.
+    float scale = max(dot(tangent, tangent), dot(bitangent, bitangent));
+    float inv_max = inversesqrt(max(scale, 1e-8));
+    return mat3(tangent * inv_max, bitangent * inv_max, normal);
+}
+
 float sample_shadow(sampler2D shadow_map, highp vec3 coord, float receiver_depth)
 {
     if (coord.x < 0.0 || coord.x > 1.0 || coord.y < 0.0 || coord.y > 1.0)
@@ -285,7 +305,8 @@ void main()
     if (material_params.z > 0.5)
     {
         vec3 tangent_normal = texture(normal_texture, var_texcoord0).xyz * 2.0 - 1.0;
-        normal = normalize(normal + tangent_normal * 0.001);
+        mat3 tbn = cotangent_frame(normal, var_world_position, var_texcoord0);
+        normal = normalize(tbn * tangent_normal);
     }
 
     vec3 view = normalize(camera_position.xyz - var_world_position);

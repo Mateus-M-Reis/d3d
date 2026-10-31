@@ -147,8 +147,8 @@ def main() -> None:
 
     # Sun and ambient light. The rotation defines the initial light direction.
     sun = component("sun", "/example/sun.script", {"speed": "2.0"})
-    sun += embedded_light("directional_light", "directional_light", (1.0, 0.96, 0.9), 2.2)
-    sun += embedded_light("ambient_light", "ambient_light", (0.55, 0.65, 0.85), 0.35)
+    sun += embedded_light("directional_light", "directional_light", (1.0, 0.96, 0.9), 1.4)
+    sun += embedded_light("ambient_light", "ambient_light", (0.55, 0.65, 0.85), 0.22)
 
     # Scene: a ground slab and five cubes.
     scene = component("scene", "/example/scene.script", {})

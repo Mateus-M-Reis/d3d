@@ -94,9 +94,9 @@ local function render_shadows(self, cascades)
     render.set_depth_func(graphics.COMPARE_FUNC_LEQUAL)
     render.enable_state(graphics.STATE_DEPTH_TEST)
     render.enable_state(graphics.STATE_CULL_FACE)
-    render.set_cull_face(graphics.FACE_TYPE_FRONT)
+    render.set_cull_face(graphics.FACE_TYPE_BACK)
     render.enable_state(graphics.STATE_POLYGON_OFFSET_FILL)
-    render.set_polygon_offset(2.0, 4.0)
+    render.set_polygon_offset(4.0, 8.0)
     render.enable_material(SHADOW_MATERIAL)
 
     for i, cascade in ipairs(cascades) do
