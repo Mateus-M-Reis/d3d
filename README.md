@@ -7,13 +7,17 @@ and gameplay-ready prefabs that a 3D game needs, so a project can start at
 "beautiful 3D scene" instead of "empty render script".
 
 > Status: **M1 vertical slice**. HDR PBR shading, cascaded directional shadows
-> and ACES tone mapping are implemented and compile with Defold 1.14.0.
-> Bloom, FXAA, IBL and clustered lighting are next.
+> and ACES tone mapping are implemented and compile with Defold 1.14.0. The
+> example has been verified on desktop Linux under software OpenGL; HTML5 and
+> mobile are next.
+
+![d3d example: five PBR cubes casting cascaded shadows](docs/images/example.png)
 
 ## What works today
 
 - HDR forward renderer (`RGBA16F` scene target, linear lighting).
 - Metallic-roughness PBR: GGX distribution, Smith visibility, Schlick Fresnel.
+- Derivative-based normal mapping, opt-in through the PBR material constant.
 - Defold `LightBuffer` integration: ambient, directional, point and spot lights.
 - Three-cascade directional shadow maps with PCF, normal-offset bias and
   texel-snapped cascade fitting.

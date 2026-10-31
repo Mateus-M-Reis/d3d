@@ -166,7 +166,7 @@ official directional-shadow example.
 - **Stability:** fit each cascade to the camera frustum slice, snap the
   orthographic center to a shadow texel, and use a bounding sphere for the
   light rotation so the map does not shimmer when the camera rotates.
-- **Bias:** front-face culling for closed meshes, polygon offset at caster time,
+- **Bias:** back-face culling for closed meshes, polygon offset at caster time,
   slope-scaled normal bias at receiver time. Defaults follow the official
   example, then are tuned per quality tier.
 - **Filtering:** 3×3 PCF by default, 5×5 on high, hard comparison on low.
