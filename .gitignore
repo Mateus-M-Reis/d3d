@@ -1,0 +1,18 @@
+# Local study copies of the reference projects. Not part of d3d.
+/defold-scene3d-main/
+/defold-illumination-master/
+
+# Defold build output
+/build/
+/.internal/
+*.zip
+*.jar
+
+# Toolchains downloaded for local validation
+/.tools/
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+*.swp
+*~

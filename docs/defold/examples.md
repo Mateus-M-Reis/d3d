@@ -1,0 +1,199 @@
+# Defold Examples
+
+These are per-example files generated for LLM usage.
+
+## Animation
+
+- [3D Animations - Skinned Model](https://defold.com/llms/examples/animation/3d_animations.md) - Learn how to play 3D animations from a GLB model using skinned model material
+- [Animation Delay - Wave](https://defold.com/llms/examples/animation/animation_delay.md) - This example shows how to use the delay parameter of `go
+- [Cancel animation](https://defold.com/llms/examples/animation/cancel_animation.md) - This example shows how to use `go
+- [Cursor animation](https://defold.com/llms/examples/animation/cursor.md) - This example shows how to set and animate the normalized cursor value
+- [Custom easing - square wave](https://defold.com/llms/examples/animation/custom_easing.md) - This example shows how to define a custom easing curve and use it when animating with `go
+- [Easing Functions (Tweens)](https://defold.com/llms/examples/animation/easing.md) - Demonstrates different easing functions available in Defold
+- [Euler Rotation](https://defold.com/llms/examples/animation/euler_rotation.md) - Shows how to animate Euler rotation
+- [Finite State Machines](https://defold.com/llms/examples/animation/animation_states.md) - Shows how to build a small Finite State Machine module and use it to control character and animation states
+- [Flipbook animation](https://defold.com/llms/examples/animation/flipbook.md) - This example shows how to use a flipbook animation in a sprite
+- [Handle Spine IK constraints](https://defold.com/llms/examples/animation/spine_ik.md) - Learn how to control Spine IK constraints by assigning a game object as the IK target
+- [Infinite Scroll Animation](https://defold.com/llms/examples/animation/infinite-scroll-animation.md) - Learn how to make infinite scroll for all objects on your level with only two scripts
+- [Spine animation](https://defold.com/llms/examples/animation/spine.md) - This example shows Spine bone animation that blends when animation switches
+- [Spinner animation](https://defold.com/llms/examples/animation/spinner.md) - This example shows how a game object is rotated in discrete steps, matching the graphics of the progress spinner
+- [Tween animation](https://defold.com/llms/examples/animation/basic_tween.md) - This example shows how to tween animate the position of a game object
+- [Tween animations chain](https://defold.com/llms/examples/animation/chained_tween.md) - This example shows how to chain two tween animations of the position of a game object
+
+## Basics
+
+- [Message passing](https://defold.com/llms/examples/basics/message_passing.md) - This example shows how to communicate between two script components in two separate game objects
+- [Parent/child](https://defold.com/llms/examples/basics/parent_child.md) - This example shows how to child a game object to a parent
+- [Random numbers](https://defold.com/llms/examples/basics/random_numbers.md) - This example shows how to generate pseudo-random numbers in Defold using built-in math API
+- [Z-order](https://defold.com/llms/examples/basics/z_order.md) - This example shows how to put sprites in front and behind of eachother
+
+## Collection
+
+- [Proxy](https://defold.com/llms/examples/collection/proxy.md) - This example shows how to use collection proxies to load and unload collections
+- [Splash](https://defold.com/llms/examples/collection/splash.md) - This example shows how to use collection proxies to show a splash screen while loading a game menu
+- [Time-step](https://defold.com/llms/examples/collection/timestep.md) - This example shows how to speed up or slow down animations in a collection proxy by changing the time step of the collection proxy
+
+## Debug
+
+- [Physics debug](https://defold.com/llms/examples/debug/physics.md) - This example allows you to toggle physics debug visualization as well as changing the time step so the simulation runs at one tenth of the speed
+- [Visual profiler](https://defold.com/llms/examples/debug/profile.md) - This example shows the on-screen profiler
+
+## Factory
+
+- [Dynamic factories](https://defold.com/llms/examples/factory/dynamic.md) - This example shows how to change the prototype game object used by a factory component
+- [Shoot bullets](https://defold.com/llms/examples/factory/bullets.md) - This example shows how to dynamically spawn bullet game objects using a factory component
+- [Spawn enemies with central management](https://defold.com/llms/examples/factory/spawn_manager.md) - This example shows how to spawn enemy game objects using a factory component and use a central manager to control movement and behavior of all enemies
+- [Spawn enemies with script properties](https://defold.com/llms/examples/factory/spawn_properties.md) - This example shows how to spawn enemy game objects using a factory component with different properties
+- [Spawn game object](https://defold.com/llms/examples/factory/basic.md) - This example shows how to dynamically spawn game objects with a factory component
+
+## File
+
+- [Load JSON data](https://defold.com/llms/examples/file/json_load.md) - This example shows how to load json data using sys
+- [Save and Load](https://defold.com/llms/examples/file/sys_save_load.md) - This example shows how to save and load data using sys
+
+## Gui
+
+- [Button](https://defold.com/llms/examples/gui/button.md) - A GUI box node with an image texture and a script to make it act as a button
+- [Drag](https://defold.com/llms/examples/gui/drag.md) - This example shows how to drag a GUI box node
+- [Get and set a gui font resource](https://defold.com/llms/examples/gui/get_set_font.md) - This example shows how to get and set a font resource on a gui component
+- [Get and set a gui material resource](https://defold.com/llms/examples/gui/get_set_material.md) - This example shows how to get and set a material resource on a gui component
+- [Get and set a gui texture resource](https://defold.com/llms/examples/gui/get_set_texture.md) - This example shows how to get and set a texture resource on a gui component
+- [GUI color](https://defold.com/llms/examples/gui/color.md) - This example shows how change the color of GUI nodes at run-time
+- [GUI progress indicators](https://defold.com/llms/examples/gui/progress.md) - This example shows how to create various types of progress indicators
+- [Health Bar](https://defold.com/llms/examples/gui/healthbar.md) - This example demonstrates how to add different health bars
+- [Layouts](https://defold.com/llms/examples/gui/layouts.md) - This example demonstrates the use of layouts
+- [Load texture](https://defold.com/llms/examples/gui/load_texture.md) - This example shows how to load and set a dynamic texture on a gui box node
+- [Localization (RTL/LTR)](https://defold.com/llms/examples/gui/localization.md) - This example demonstrates how to handle localization in games, Unicode text layout, RTL rendering, and runtime font switching for localization
+- [Pointer over](https://defold.com/llms/examples/gui/pointer_over.md) - A GUI box node with an image texture and a script that react when pointer over this node
+- [Slice-9](https://defold.com/llms/examples/gui/slice9.md) - This example demonstrates slice-9 scaling gui box node
+- [Stencil](https://defold.com/llms/examples/gui/stencil.md) - A GUI box node with "Clipping mode" set to "STENCIL"
+
+## Input
+
+- [8 ways movement](https://defold.com/llms/examples/input/move.md) - A very simple 8 ways movement setup with a single game object and a script that listens to input and updates the game object position accordingly
+- [Down duration](https://defold.com/llms/examples/input/down_duration.md) - Listens to input trigger "touch" and count mouse down duration in update method
+- [Entity Picking](https://defold.com/llms/examples/input/entity_picking.md) - This example demonstrates how to pick a game object from the 3D scene
+- [Mouse and Touch Events](https://defold.com/llms/examples/input/mouse_and_touch.md) - Shows how to read mouse and/or touch movement and mouse button/touch state
+- [Text input](https://defold.com/llms/examples/input/text.md) - Listens to text input trigger "type" and modifies the game object label with the alien's speech according to input
+
+## Material
+
+- [Billboarding](https://defold.com/llms/examples/material/billboarding.md) - This example shows how to make sprites and particle sprites face the camera using a custom vertex shader
+- [Custom Sprite](https://defold.com/llms/examples/material/custom_sprite.md) - This example demonstrates a simple way to create and apply a custom sprite shader for changing colors and customizing an outline
+- [Noise shader](https://defold.com/llms/examples/material/noise.md) - This example shows how to use a noise function to generate clouds, smoke or similar effect using a shader
+- [Repeating Background](https://defold.com/llms/examples/material/repeating_background.md) - Create a full-screen scrolling background using a repeated texture on a glTF quad
+- [Screenspace](https://defold.com/llms/examples/material/screenspace.md) - This example shows how to create a custom material with two textures that blend together to create a pattern effect using screen space coordinates
+- [Sprite local UV](https://defold.com/llms/examples/material/sprite_local_uv.md) - This example shows how to get local UV coordinates of a sprite regardless of sprite size
+- [Sprite Vertex Color Attribute](https://defold.com/llms/examples/material/vertexcolor.md) - This example shows how to set and animate a vertex attribute
+- [Unlit](https://defold.com/llms/examples/material/unlit.md) - This example shows how to create and apply an unlit material to a 3D model
+- [UV Gradient](https://defold.com/llms/examples/material/uvgradient.md) - This example shows how to apply a basic shader to a full screen quad
+- [Wave Background](https://defold.com/llms/examples/material/wave_background.md) - Shows how to use a Time shader constant to achieve a moving wave effect
+
+## Mesh
+
+- [Mesh](https://defold.com/llms/examples/mesh/triangle.md) - This example shows how to create a basic mesh component in the shape of a triangle
+- [Textured Mesh](https://defold.com/llms/examples/mesh/textured.md) - This example shows how to create a textured mesh component in the shape of a rectangle
+
+## Model
+
+- [AABB to frame objects with a camera](https://defold.com/llms/examples/model/aabb.md) - This example shows how to use `model
+- [Character - Skeletal Animation](https://defold.com/llms/examples/model/character.md) - This example shows how to play skeletal animations on a glTF character model and trigger them from GUI buttons
+- [Cubemap Reflection](https://defold.com/llms/examples/model/cubemap.md) - Shows how to sample a cubemap in a model shader to create environment reflections
+- [GLTF - Infinite Track](https://defold.com/llms/examples/model/gltf.md) - This example shows how to use glTF models to build an infinite scrolling track
+- [GPU Skinning](https://defold.com/llms/examples/model/skinning.md) - This example demonstrates GPU skinning
+- [Model Vertex Color](https://defold.com/llms/examples/model/modelvertexcolor.md) - This example demonstrates how to apply a vertex color shader using exported attributes from a 3D model
+- [Morph Target Animation](https://defold.com/llms/examples/model/morph-target.md) - Shows how to play glTF morph target animations with a morph-capable model material
+- [Morph Target Weights](https://defold.com/llms/examples/model/morph-target-weights.md) - Shows how to override morph target weights on a Model component with `model
+- [Skybox](https://defold.com/llms/examples/model/skybox.md) - This example shows how to create a skybox using a cubemap texture
+
+## Movement
+
+- [First-person 3D camera and movement](https://defold.com/llms/examples/movement/3d_fps.md) - Control a first-person camera using WASD and mouse to look with cursor lock
+- [Follow input](https://defold.com/llms/examples/movement/follow.md) - This example shows how to make a game object continuously follow the mouse
+- [Look at](https://defold.com/llms/examples/movement/look_at.md) - This example shows how to rotate a game object to look at the mouse cursor
+- [Look rotation](https://defold.com/llms/examples/movement/look_rotation.md) - This example shows how to rotate a game object to look at the object in 3D space
+- [Move forward](https://defold.com/llms/examples/movement/move_forward.md) - This example shows how to move a game object in the direction it is rotated/facing
+- [Move to target](https://defold.com/llms/examples/movement/move_to.md) - This example shows how to make a game object move to the position the user clicks
+- [Movement speed](https://defold.com/llms/examples/movement/movement_speed.md) - This example shows how to move a game object with accelerating speed
+- [Moving game object](https://defold.com/llms/examples/movement/simple_move.md) - This example shows how to move a game object
+
+## Particles
+
+- [Modifiers](https://defold.com/llms/examples/particles/modifiers.md) - This example shows particle effect modifiers
+- [Particle effect](https://defold.com/llms/examples/particles/particlefx.md) - This example shows a simple particle effect
+- [Particle Effect Emission Space](https://defold.com/llms/examples/particles/particlefx_emission_space.md) - This example demonstrates the difference between local and world particle emission spaces
+- [Particle effect example - fire and smoke](https://defold.com/llms/examples/particles/fire_and_smoke.md) - This example shows a simple particle effect for imitating fire and smoke using two emitters and 3 modifiers in a single particlefx component
+- [ParticleFX - Confetti](https://defold.com/llms/examples/particles/confetti.md) - This example shows a simple particle effect to imitate confetti with multiple emitters and global multipliers for all of them
+- [ParticleFX - Fountain - Start Delay](https://defold.com/llms/examples/particles/particlefx_start_delay.md) - This example shows how the Start Delay emitter property can be used to sequence two emitters inside a single ParticleFX and create a simple fountain effect
+- [ParticleFX emitter properties](https://defold.com/llms/examples/particles/particlefx_set_get.md) - This example shows how to get and set ParticleFX emitter image, animation, and material at runtime
+- [Spawning Fireworks ParticleFX](https://defold.com/llms/examples/particles/fireworks.md) - This example shows how to spawn firework rockets with separate trail and burst particle effects, including a small dip before the burst
+
+## Physics
+
+- [Apply force](https://defold.com/llms/examples/physics/apply_force.md) - This example demonstrates how to apply directional force to all dynamic blocks on touch/click and draws debug direction lines
+- [Apply Linear Impulse](https://defold.com/llms/examples/physics/apply_linear_impulse.md) - Apply a linear impulse to a dynamic physics body on click or touch
+- [Box2D Chain Terrain](https://defold.com/llms/examples/physics/box2d_chain_terrain.md) - Create Box2D chain terrain from script using Box2D V2 legacy and Box2D V3
+- [Box2D Distance Joint](https://defold.com/llms/examples/physics/box2d_distance_joint.md) - Compare a rigid distance joint with the same joint configured as a damped spring
+- [Box2D dynamic shape scale and mass](https://defold.com/llms/examples/physics/box2d_dynamic_scale.md) - Resize dynamic Box2D collision shapes at runtime and recalculate body mass
+- [Box2D Material Properties Tuning](https://defold.com/llms/examples/physics/box2d_material_tuning.md) - Tune Box2D density, friction, and restitution from script using Box2D V2 legacy and Box2D V3
+- [Box2D Motor Joint](https://defold.com/llms/examples/physics/box2d_motor_joint.md) - Create and control a motorized Box2D joint from script using Box2D V2 and V3
+- [Box2D Mouse Joint](https://defold.com/llms/examples/physics/box2d_mouse_joint.md) - Create a mouse joint that pulls dynamic bodies toward a moving target
+- [Box2D Prismatic Joint](https://defold.com/llms/examples/physics/box2d_prismatic_joint.md) - Create a motorized Box2D prismatic joint with translation limits from script using Box2D
+- [Box2D Queries](https://defold.com/llms/examples/physics/box2d_queries.md) - This example shows how to use Box2D world overlap and raycast queries
+- [Box2D Revolute Bridge](https://defold.com/llms/examples/physics/box2d_revolute_bridge.md) - Create a bridge from revolute joints between existing Defold collision objects
+- [Box2D Sensors](https://defold.com/llms/examples/physics/box2d_sensor_toggle.md) - Create Box2D sensors from static collision shapes
+- [Box2D Weld Joint](https://defold.com/llms/examples/physics/box2d_weld_joint.md) - Create Box2D weld joints from script so separate dynamic bodies behave like one rigid assembly
+- [Dynamic physics](https://defold.com/llms/examples/physics/dynamic.md) - This example shows a simple setup with dynamic physics objects
+- [Fixed timestep interpolation](https://defold.com/llms/examples/physics/interpolation.md) - This example shows how to smooth physics motion in fixed update mode by interpolating a visual sprite while keeping the physics body fixed-step
+- [Hinge joint physics](https://defold.com/llms/examples/physics/hinge_joint.md) - This example shows a simple setup with a dynamic body physics object and two dynamic wheel physics object joined together with a joint of type "hinge"
+- [Kinematic physics](https://defold.com/llms/examples/physics/kinematic.md) - This example shows a simple setup with a kinematic physics objects
+- [Knockback](https://defold.com/llms/examples/physics/knockback.md) - This example shows how to create a knockback effect when hit
+- [Pendulum physics](https://defold.com/llms/examples/physics/pendulum.md) - This example shows a simple setup with a static pivot and two dynamic weights - physics objects joined together with a joint of type "fixed" and "spring"
+- [Raycast](https://defold.com/llms/examples/physics/raycast.md) - This example shows how to use physics raycasts to detect collisions along a straight line from a start point to an end point
+- [Trigger](https://defold.com/llms/examples/physics/trigger.md) - This example shows how a physics trigger is used to trigger an event
+
+## Render
+
+- [Basic Lights 2D](https://defold.com/llms/examples/render/basic_lights_2d.md) - This example shows how to make sprites respond to Defold Light components with a custom material in a basic setup
+- [Basic Lights 3D](https://defold.com/llms/examples/render/basic_lights_3d.md) - This example shows how ambient, directional, point, and spot lights affect 3D models that use built-in lit materials
+- [Camera](https://defold.com/llms/examples/render/camera.md) - This example shows how to use a camera component and have it follow a game object
+- [Directional Light Shadows with PCF Filtering](https://defold.com/llms/examples/render/directional_light_shadows.md) - This example shows how to implement a configurable, PCF-filtered shadow map for a directional light
+- [Orbit Camera](https://defold.com/llms/examples/render/orbit_camera.md) - This example demonstrates how to create script to control a 3D camera with the mouse
+- [Orthographic Zoom](https://defold.com/llms/examples/render/orthographic_zoom.md) - This example shows how to zoom an orthographic camera in and out by changing Orthographic Zoom while the camera is in Fixed mode
+- [Post-processing](https://defold.com/llms/examples/render/post_processing.md) - This example shows how to apply a post-processing effect by drawing to a render target and then to a fullscreen quad using a post processing shader
+- [Screen to World](https://defold.com/llms/examples/render/screen_to_world.md) - This example shows how to convert from screen to world coordinates while using a camera
+- [World to Screen](https://defold.com/llms/examples/render/world_to_screen.md) - This example demonstrates how to convert 3D world coordinates to 2D screen coordinates using camera transformations
+
+## Resource
+
+- [Create atlas](https://defold.com/llms/examples/resource/create_atlas.md) - This example shows how to create an atlas with two images and use it on a sprite and in a gui
+- [Modify atlas](https://defold.com/llms/examples/resource/modify_atlas.md) - This example shows how to replace an image in an atlas
+
+## Sound
+
+- [Fade In-Out](https://defold.com/llms/examples/sound/fade_in_out.md) - This example shows how to make Fade-In and fade Fade-Out music
+- [Get and set sound](https://defold.com/llms/examples/sound/get_set_sound.md) - This example shows how to change which sound a sound component plays
+- [Music](https://defold.com/llms/examples/sound/music.md) - This example shows how to play a piece of music, stored as an
+- [Panning](https://defold.com/llms/examples/sound/panning.md) - This example demonstrates how to pan a sound effect according to a GO's(game object) position on the screen
+
+## Sprite
+
+- [Bunnymark](https://defold.com/llms/examples/sprite/bunnymark.md) - This is a performance test for sprites
+- [Change sprite image](https://defold.com/llms/examples/sprite/changeimage.md) - This example shows how to change the image of a sprite
+- [Flip](https://defold.com/llms/examples/sprite/flip.md) - This example demonstrates flipping a sprite animation vertically and horizontally
+- [Multiple Sprite Samplers](https://defold.com/llms/examples/sprite/samplers.md) - This example shows how to sample from more than one image when drawing a sprite
+- [Sprite cursor](https://defold.com/llms/examples/sprite/cursor.md) - This example shows how to use the sprite animation cursor and frame count to manually select a specific frame
+- [Sprite size](https://defold.com/llms/examples/sprite/size.md) - This example shows how to get the size of a sprite at run-time
+- [Sprite tint](https://defold.com/llms/examples/sprite/tint.md) - This example shows how tint a sprite at run-time
+- [Texture scrolling](https://defold.com/llms/examples/sprite/texture_scrolling.md) - This example shows how scroll the texture in the runtime using Texture Transform 2D Vertex Attribute, without using the sprite in the world space
+
+## Tilemap
+
+- [Get and set tiles](https://defold.com/llms/examples/tilemap/get_set_tile.md) - This example shows how to get and set tiles of a tilemap
+- [Tilemap collisions](https://defold.com/llms/examples/tilemap/collisions.md) - This example shows how to detect collisions on tilemaps
+
+## Timer
+
+- [Cancel timer example](https://defold.com/llms/examples/timer/cancel_timer.md) - This example shows how to create timer and cancel it anytime, using built-in timer API
+- [Repeating timer example](https://defold.com/llms/examples/timer/repeating_timer.md) - This example shows how to create timer that repeats endlessly every second
+- [Trigger timer example](https://defold.com/llms/examples/timer/trigger_timer.md) - This example shows how to create timer that triggers counting every 1s and can be triggered manually and asynchronously as a reaction to user input

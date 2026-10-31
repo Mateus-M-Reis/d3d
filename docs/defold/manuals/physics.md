@@ -1,0 +1,34 @@
+# Physics {#manuals:physics}
+
+Defold includes [Box2D](https://box2d.org/) for 2D physics simulations and Bullet for 3D physics. The [App Manifest's Physics 2D setting](https://defold.com/llms/manuals/app-manifest.md) selects **Box2D Version 3**, **Box2D (Legacy Defold version)**, or **None**. The legacy implementation is the default; Box2D 3 is opt-in. Changing implementation can change simulation results and may require you to retune the version-specific [Box2D project settings](https://defold.com/llms/manuals/project-settings.md).
+
+The component-oriented collision-object workflow and the `physics` module described by these manuals work with either Box2D implementation; selecting **None** removes 2D physics. Defold also exposes lower-level [`b2d`](https://defold.com/ref/b2d/), `b2d.body`, `b2d.fixture`, `b2d.shape`, `b2d.joint`, `b2d.chain`, and `b2d.world` APIs for direct access to 2D bodies, shapes, joints, chains, and worlds. Not every low-level function is available in both Box2D implementations; check each function's generated API documentation against the implementation selected in the App Manifest.
+
+The main concepts of the physics engines used in Defold are:
+
+* **Collision objects** - A collision object is a component you use to give a game object physical behaviour. A collision object has physical properties like weight, friction and shape. [Learn how to create a collision object](https://defold.com/llms/manuals/physics-objects.md).
+* **Collision shapes** - A collision object can either use several primitive shapes or a single complex shape to define its spatial extension. [Learn how to add shapes to a collision object](https://defold.com/llms/manuals/physics-shapes.md).
+* **Collision groups** - All collision objects must belong to a predefined group and each collision object can specify a list of other groups it can collide with. [Learn how to use collision groups](https://defold.com/llms/manuals/physics-groups.md).
+* **Collision messages** - When two collision objects collide the physics engine send messages to the game objects the components belong to. [Learn more about collision messages](https://defold.com/llms/manuals/physics-messages.md)
+
+In addition to the collision objects themselves you can also define collision object **constraints**, more commonly known as **joints**, to connect two collision objects and limit or in other ways apply force and influence how they behave in the physics simulation. [Learn more about joins](https://defold.com/llms/manuals/physics-joints.md).
+
+You can also probe and read the physics world along a linear ray known as a **ray cast**. [Learn more about ray casts](https://defold.com/llms/manuals/physics-ray-casts.md).
+
+## Units used by the physics engine simulation
+
+The physics engine simulates Newtonian physics and it is designed to work well with meters, kilograms and seconds (MKS) units. Furthermore, the physics engine is tuned to work well with moving objects of a size in the 0.1 to 10 meters range (static objects can be larger) and by default the engine treats 1 unit (pixel) as 1 meter. This conversion between pixels and meters is convenient on a simulation level, but from a game creation perspective it isn't very useful. With default settings a collision shape with a size of 200 pixels would be treated as having a size of 200 meters which is well outside of the recommended range, at least for a moving object.
+
+In general it is required that the physics simulation is scaled for it to work well with the typical size of objects in a game. The scale of the physics simulation can be changed in *game.project* via the [physics scale setting](https://defold.com/llms/manuals/project-settings.md). Setting this value to for instance 0.02 would mean that 200 pixels would be treated as a 4 meters. Do note that the gravity (also changed in *game.project*) has to be increased to accommodate for the change in scale.
+
+## Physics updates
+
+It is recommended to update the physics engine at regular intervals to ensure a stable simulation (as opposed to updating at possibly irregular frame-rate dependent intervals). You can use a fixed update for physics by checking the [Use Fixed Timestep setting](https://defold.com/llms/manuals/project-settings.md) of the Physics section in the *game.project* file. The update frequency is controlled by the [Fixed Update Frequency setting](https://defold.com/llms/manuals/project-settings.md) of the Engine section in the *game.project* file. When using a fixed timestep for physics it is also recommended to use the `fixed_update(self, dt)` lifecycle function to interact with the collision objects of your game, for instance when applying forces to them.
+
+## Caveats and common issues
+
+Collection proxies
+: Through collection proxies it is possible to load more than one top level collection, or *game world* into the engine. When doing so it is important to know that each top level collection is a separate physical world. Physics interactions ([collisions, triggers](https://defold.com/llms/manuals/physics-messages.md) and [ray-casts](https://defold.com/llms/manuals/physics-ray-casts.md)) only happen between objects belonging to the same world. So even if the collision objects from two worlds visually sits right on top of each other, there cannot be any physics interaction between them.
+
+Collisions not detected
+: If you have problems with collisions not being handled or detected properly then make sure to read up on [physics debugging in the Debugging manual](https://defold.com/llms/manuals/debugging-game-logic.md).

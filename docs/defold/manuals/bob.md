@@ -1,0 +1,244 @@
+# Bob the builder {#manuals:bob}
+
+Bob is a command line tool for building Defold projects outside of the normal editor workflow.
+
+Bob is able to build data (corresponding to the build step of selecting the editor menu item `Project ▸ Build`), create data archives and create standalone, distributable application bundles (corresponding to the editor menu item `Project ▸ Bundle ▸ ...` options)
+
+Bob is distributed as a Java _JAR_ archive containing everything needed to build. You find the latest *bob.jar* distribution on the [GitHub Releases page](https://github.com/defold/defold/releases). Select a release, then download *bob/bob.jar*. You will need OpenJDK 25 to run it.
+
+Compatible OpenJDK 25 mirrors:
+* [OpenJDK 25 by Microsoft](https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-25)
+* [OpenJDK 25 by Adoptium Working Group](https://github.com/adoptium/temurin25-binaries/releases) / [Adoptium.net](https://adoptium.net/)
+
+If you are on Windows you want the `.msi` file installer for OpenJDK.
+
+## Usage
+
+Bob is run from a shell or from the command line by invoking `java` (or `java.exe` on Windows) and providing the bob java archive as argument:
+```text
+$ java -jar bob.jar --help
+usage: bob [options] [commands]
+ -a,--archive                            Build archive
+ -ar,--architectures <arg>               Comma separated list of
+                                         architectures to include for the
+                                         platform
+    --archive-resource-padding <arg>     The alignment of the resources in
+                                         the game archive. Default is 4
+ -bf,--bundle-format <arg>               Which formats to create the
+                                         application bundle in. Comma
+                                         separated list. (Android: 'apk'
+                                         and 'aab')
+    --binary-output <arg>                Location where built engine
+                                         binary will be placed. Default is
+                                         "<build-output>/<platform>/"
+ -bo,--bundle-output <arg>               Bundle output directory
+ -br,--build-report <arg>                DEPRECATED! Use
+                                         --build-report-json instead
+ -brhtml,--build-report-html <arg>       Filepath where to save a build
+                                         report as HTML
+ -brjson,--build-report-json <arg>       Filepath where to save a build
+                                         report as JSON
+    --build-artifacts <arg>              If left out, will default to
+                                         build the engine. Choices:
+                                         'engine', 'plugins', 'library'.
+                                         Comma separated list
+    --build-input <arg>                  Project resource path to build
+                                         instead of game.project. May be
+                                         specified more than once. More
+                                         than one occurrence is allowed
+    --build-input-file <arg>             File containing project resource
+                                         paths to build instead of
+                                         game.project. May be specified
+                                         more than once. More than one
+                                         occurrence is allowed
+    --build-server <arg>                 The build server (when using
+                                         native extensions)
+    --build-server-header <arg>          Additional build server header to
+                                         set. More than one occurrence is
+                                         allowed
+ -ce,--certificate <arg>                 DEPRECATED! Use --keystore
+                                         instead
+ -d,--debug                              DEPRECATED! Use --variant=debug
+                                         instead
+    --debug-ne-upload                    Outputs the files sent to build
+                                         server as upload.zip
+    --debug-output-glsl <arg>            Force build GLSL shaders
+    --debug-output-hlsl <arg>            Force build HLSL shaders
+    --debug-output-msl <arg>             Force build Metal shaders
+    --debug-output-spirv <arg>           Force build SPIR-V shaders
+    --debug-output-wgsl <arg>            Force build WGSL shaders
+    --defoldsdk <arg>                    What version of the defold sdk
+                                         (sha1) to use
+ -e,--email <arg>                        User email
+ -ea,--exclude-archive                   Exclude resource archives from
+                                         application bundle. Use this to
+                                         create an empty Defold
+                                         application for use as a build
+                                         target
+    --exclude-build-folder <arg>         DEPRECATED! Use '.defignore' file
+                                         instead
+    --experimental-path-minification     Minimizes resource path names in
+                                         order to save bundle size.
+ -h,--help                               This help message
+ -i,--input <arg>                        DEPRECATED! Use --root instead
+    --identity <arg>                     Sign identity (iOS)
+ -kp,--key-pass <arg>                    Password of the deployment key if
+                                         different from the keystore
+                                         password (Android)
+ -ks,--keystore <arg>                    Deployment keystore used to sign
+                                         APKs (Android)
+ -ksa,--keystore-alias <arg>             The alias of the signing key+cert
+                                         you want to use (Android)
+ -ksp,--keystore-pass <arg>              Password of the deployment
+                                         keystore (Android)
+ -l,--liveupdate <arg>                   Yes if liveupdate content should
+                                         be published
+    --max-cpu-threads <arg>              Max count of threads that bob.jar
+                                         can use
+ -mp,--mobileprovisioning <arg>          mobileprovisioning profile (iOS)
+    --ne-build-dir <arg>                 Specify a folder with includes or
+                                         source, to build a specific
+                                         library. More than one occurrence
+                                         is allowed
+    --ne-output-name <arg>               Specify a library target name
+ -o,--output <arg>                       Output directory. Default is
+                                         "build/default"
+ -p,--platform <arg>                     Platform (when building and
+                                         bundling)
+ -pk,--private-key <arg>                 DEPRECATED! Use --keystore
+                                         instead
+ -r,--root <arg>                         Build root directory. Default is
+                                         current directory
+    --resource-cache-local <arg>         Path to local resource cache
+    --resource-cache-remote <arg>        URL to remote resource cache
+    --resource-cache-remote-pass <arg>   Password/token to authenticate
+                                         access to the remote resource
+                                         cache
+    --resource-cache-remote-user <arg>   Username to authenticate access
+                                         to the remote resource cache
+    --settings <arg>                     Path to a game project settings
+                                         file. The settings files are
+                                         applied left to right. More than
+                                         one occurrence is allowed
+    --strip-executable                   Strip the dmengine of debug
+                                         symbols (when bundling iOS or
+                                         Android)
+ -tc,--texture-compression               Use texture compression as
+                                         specified in texture profiles
+ -tp,--texture-profiles <arg>            DEPRECATED! Use
+                                         --texture-compression instead
+ -u,--auth <arg>                         User auth token
+    --use-async-build-server             DEPRECATED! Asynchronous build is
+                                         now the default
+    --use-lua-bytecode-delta             Use byte code delta compression
+                                         when building for multiple
+                                         architectures
+    --use-uncompressed-lua-source        Use uncompressed and unencrypted
+                                         Lua source code instead of byte
+                                         code
+    --use-vanilla-lua                    DEPRECATED! Use
+                                         --use-uncompressed-lua-source
+                                         instead
+ -v,--verbose                            Verbose output
+    --variant <arg>                      Specify debug, release or
+                                         headless version of dmengine
+                                         (when bundling)
+    --version                            Prints the version number to the
+                                         output
+    --with-sha1                          Generate (and verify) sha1
+                                         signatures from build artifacts
+                                         (when bunding for web)
+    --with-symbols                       Generate the symbol file (if
+                                         applicable)
+```
+
+`--texture-compression` is a switch with no value. Include it to enable the compression selected by the texture profiles; omit it to disable texture compression. The legacy `--texture-compression=true` form is still accepted. The legacy `--texture-compression=false` form is ignored and produces a warning; omit the switch instead.
+
+Available commands:
+
+`clean`
+: Delete built files in the build directory.
+
+`distclean`
+: Delete all files in the build directory.
+
+`build`
+: Builds the dependency graph reachable from the selected build roots. By default the root is `game.project`; `--build-input` and `--build-input-file` can specify alternative roots. Files are not built merely because they exist under the project root. When `game.project` is a build root, add `--archive` to build the game data archive in the build directory.
+
+`bundle`
+: Creates a platform specific application bundle. Bundling requires that a built archive is present (`build` with the `--archive` option) and that a target platform is specified (with the `--platform` option). Bob creates the bundle in the output directory unless a different directory is specified with the `--bundle-output` option. The bundle is named according to the project name setting in *game.project*. The `--variant` specifies which type of executable to build when bundling and it together with the `--strip-executable` option replaces the `--debug` option. If no `--variant` is specified you will get a release version of the engine (stripped of symbols on Android and iOS). Setting `--variant` to debug and omitting `--strip-executable` yields the same type of executable as `--debug` used to do.
+
+`resolve`
+: Resolve all external library dependencies.
+
+Available platforms and architectures:
+
+`x86_64-macos`
+: macOS 64 bit
+
+`arm64-macos`
+: macOS Apple Silicon (ARM)
+
+`x86_64-win32`
+: Windows 64 bit
+
+`x86_64-linux`
+: Linux 64 bit
+
+`arm64-linux`
+: Linux ARM64 for Raspberry Pi and Linux-based handheld devices.
+
+`arm64_sim-ios`
+: iOS Simulator on Apple Silicon Macs. Simulator bundles do not use a signing identity or provisioning profile, so `--identity` and `--mobileprovisioning` are ignored.
+
+`arm64-ios`
+: iOS 64 bit. By default, `--architectures` argument value is `arm64-ios`.
+
+`armv7-android`
+: Android with available 32 bit `armv7-android`, 64 bit `arm64-android` and 64 bit `x86_64-android` architectures. By default, `--architectures` argument value is `armv7-android,arm64-android`. The `x86_64-android` architecture is opt-in (mainly useful for Android emulators, ChromeOS and Windows Subsystem for Android) and must be added explicitly.
+
+`wasm-web`
+: HTML5 with available `wasm-web` and `wasm_pthread-web` architectures. By default, `--architectures` argument value is `wasm-web`.
+
+By default, Bob looks in the current directory for a project and builds resources reachable from `game.project` into *build/default*. Unreferenced resources are not compiled. If code loads raw files by path at runtime, include them through the [Custom Resources project setting](https://defold.com/llms/manuals/project-settings.md); other Defold resources need a reference reachable from a build root.
+```sh
+$ cd /Applications/Defold-beta/branches/14/4/main
+$ java -jar bob.jar
+100%
+$
+```
+
+You can string commands together to perform a sequence of tasks in one go. The following example resolves libraries, wipes the build directory, builds archive data and bundles a macOS application (named *My Game.app*):
+```sh
+$ java -jar bob.jar --archive --platform x86_64-macos resolve distclean build bundle
+100%
+$ ls -al build/default/
+total 70784
+drwxr-xr-x   13 sicher  staff       442  1 Dec 10:15 .
+drwxr-xr-x    3 sicher  staff       102  1 Dec 10:15 ..
+drwxr-xr-x    3 sicher  staff       102  1 Dec 10:15 My Game.app
+drwxr-xr-x    8 sicher  staff       272  1 Dec 10:15 builtins
+-rw-r--r--    1 sicher  staff    140459  1 Dec 10:15 digest_cache
+drwxr-xr-x    4 sicher  staff       136  1 Dec 10:15 fonts
+-rw-r--r--    1 sicher  staff  35956340  1 Dec 10:15 game.darc
+-rw-r--r--    1 sicher  staff       735  1 Dec 10:15 game.projectc
+drwxr-xr-x  223 sicher  staff      7582  1 Dec 10:15 graphics
+drwxr-xr-x    3 sicher  staff       102  1 Dec 10:15 input
+drwxr-xr-x   20 sicher  staff       680  1 Dec 10:15 logic
+drwxr-xr-x   27 sicher  staff       918  1 Dec 10:15 sound
+-rw-r--r--    1 sicher  staff    131926  1 Dec 10:15 state
+$
+```
+
+## Build server
+
+Since Defold 1.14.0, Bob selects the default native extension build server from the release channel of its distribution:
+
+| Bob release channel | Default build server |
+|---|---|
+| `stable` | `https://build.defold.com` |
+| Any other channel, including `beta` and `alpha` | `https://build-stage.defold.com` |
+
+Run `java -jar bob.jar --version` to display the release channel together with Bob's version and build information. The `--variant` option controls the engine build variant and does not change this release channel.
+
+Pass `--build-server ` to select a server explicitly, including a [self-hosted Extender server](https://defold.com/llms/manuals/extender-local-setup.md). This option overrides the default for every release channel.

@@ -1,0 +1,482 @@
+# Render {#manuals:render}
+
+Every object that is shown on screen by the engine: sprites, models, tiles, particles or GUI nodes, are drawn by a renderer. At the heart of the renderer is a render script that controls the render pipeline. By default, every 2D object is drawn with the correct bitmap with the specified blending and at the correct Z depth---so you might not have to ever think about rendering beyond ordering and simple blending. For most 2D games, the default pipeline functions well, but your game might have special requirements. If that is the case, Defold allows you to write a tailor-made rendering pipeline.
+
+### Render pipeline - What, when and where?
+
+The render pipeline controls what to render, when to render it and also where to render it. What to render is controlled by [render predicates](#render-predicates). When to render a predicate is controlled in the [render script](#the-render-script) and where to render a predicate is controlled by the [view projection](#default-view-projection). The render pipeline can also cull the graphics, drawn by a render predicate, which lies outside of a defined bounding box or frustum. This process is called frustum culling.
+
+## The default render
+
+The render file contains a reference to the current render script as well as custom materials that should be made available in the render script (use with [`render.enable_material()`](https://defold.com/ref/render/#render.enable_material))
+
+At the heart of the rendering pipeline is the _render script_. This is a Lua script with the functions `init()`, `update()` and `on_message()` and it is primarily used to interact with the underlying graphics API. The render script has a special place in the lifecycle of your game. Details can be found in the [Application lifecycle documentation](https://defold.com/llms/manuals/application-lifecycle.md).
+
+In the "Builtins" folder of your projects you can find the default render resource ("default.render") and the default render script ("default.render_script").
+
+To set up a custom renderer:
+
+1. Copy the files "default.render" and "default.render_script" to a location in your project hierarchy. You can, of course, create a render script from scratch but it is a good idea to start with a copy of the default script, especially if you are new to Defold and/or graphics programming.
+
+2. Edit your copy of the "default.render" file and change the *Script* property to refer to your copy of the render script.
+
+3. Change the *Render* property (under *bootstrap*) in the *game.project* settings file to refer to your copy of the "default.render" file.
+
+## Render predicates
+
+To be able to control the draw order of objects, you create render _predicates_. A predicate declares what should be drawn based on a selection of material _tags_.
+
+Each object that is drawn onto the screen has a material attached to it that controls how the object should be drawn to the screen. In the material, you specify one or more _tags_ that should be associated with the material.
+
+In your render script, you can then create a *render predicate* and specify which tags should belong to that predicate. When you tell the engine to draw the predicate, each object with a material containing all of the tags specified for the predicate will be drawn.
+```
+Sprite 1        Sprite 2        Sprite 3        Sprite 4
+Material A      Material A      Material B      Material C
+  outlined        outlined        greyscale       outlined
+  tree            tree            tree            house
+```
+```lua
+-- a predicate matching all sprites with tag "tree"
+local trees = render.predicate({"tree"})
+-- will draw Sprite 1, 2 and 3
+render.draw(trees)
+
+-- a predicate matching all sprites with tag "outlined"
+local outlined = render.predicate({"outlined"})
+-- will draw Sprite 1, 2 and 4
+render.draw(outlined)
+
+-- a predicate matching all sprites with tags "outlined" AND "tree"
+local outlined_trees = render.predicate({"outlined", "tree"})
+-- will draw Sprite 1 and 2
+render.draw(outlined_trees)
+```
+
+A detailed description on how materials work can be found in the [Material documentation](https://defold.com/llms/manuals/material.md).
+
+## Default view projection
+
+The default render script is configured to use an orthographic projection suitable for 2D games. It provides three different orthographic projections: `Stretch` (default), `Fixed Fit` and `Fixed`. As an alternative to the orthographic projections in the default render script you also have the option to use the projection matrix provided by a camera component.
+
+### Stretch projection
+
+The stretch projection will always draw an area of your game that is equal to the dimensions set in *game.project*, even when the window is resized. If the aspect ratio changes it will result in game content being stretched either vertically or horizontally:
+
+*Stretch projection with original window size*
+
+*Stretch projection with the window stretched horizontally*
+
+The stretch projection is the default projection but if you have changed from it and need to switch back you do it by sending a message to the render script:
+```lua
+msg.post("@render:", "use_stretch_projection", { near = -1, far = 1 })
+```
+
+### Fixed fit projection
+
+Just like the stretch projection the fixed fit projection will always show an area of the game that is equal to the dimensions set in *game.project*, but if the window is resized and the aspect ratio changes the game content will retain the original aspect ratio and additional game content will be shown vertically or horizontally:
+
+*Fixed fit projection with original window size*
+
+*Fixed fit projection with the window stretched horizontally*
+
+*Fixed fit projection with the window reduced to 50% of original size*
+
+You enable the fixed fit projection by sending a message to the render script:
+```lua
+msg.post("@render:", "use_fixed_fit_projection", { near = -1, far = 1 })
+```
+
+### Fixed projection
+
+The fixed projection will retain the original aspect ratio and render your game content with a fixed zoom level. This means that it if the zoom level is set to something other than 100% it will show more or less than the area of the game defined by the dimensions in *game.project*:
+
+*Fixed projection with zoom set to 2*
+
+*Fixed projection with zoom set to 0.5*
+
+*Fixed projection with zoom set to 2 and window reduced to 50% of original size*
+
+You enable the fixed projection by sending a message to the render script:
+```lua
+msg.post("@render:", "use_fixed_projection", { near = -1, far = 1, zoom = 2 })
+```
+
+### Camera projection
+
+When using the default render script and there are enabled [Camera components](https://defold.com/llms/manuals/camera.md) available in the project, they will take precedence over any other view / projections set in the render script. To read more about how to work with camera components in render scripts, please consult the [Camera documentation](https://defold.com/llms/manuals/camera.md).
+
+Orthographic cameras support an `Orthographic Mode` that controls how the camera adapts to the window:
+- `Fixed` uses the camera’s `Orthographic Zoom` value.
+- `Auto Fit` (contain) keeps the full design area visible.
+- `Auto Cover` (cover) fills the window and may crop.
+
+You can switch modes in the Editor or at runtime via the Camera API:
+```lua
+-- Use auto-fit behavior with an orthographic camera
+camera.set_orthographic_mode("main:/go#camera", camera.ORTHO_MODE_AUTO_FIT)
+-- Query current mode
+local mode = camera.get_orthographic_mode("main:/go#camera")
+```
+
+## Frustum culling
+
+The render API in Defold lets developers perform something called frustum culling. When frustum culling is enabled any graphics that lies outside of a defined bounding box or frustum will be ignored. In a large game world where only a portion is visible at a time, frustum culling can dramatically reduce the amount of data that needs to be sent to the GPU for rendering, thus increasing performance and saving battery (on mobile devices). It is common to use the view and projection of the camera to create the bounding box. The default render script uses the view and projection (from the camera) to calculate a frustum.
+
+Enable frustum culling for a draw call by passing a view-projection matrix in the `frustum` option to `render.draw()`:
+```lua
+local frustum = self.proj * self.view
+render.draw(predicates.particle, { frustum = frustum })
+```
+
+When rendering with a camera component, `render.set_camera()` can use the camera's view-projection matrix automatically for subsequent draw calls:
+```lua
+render.set_camera("main:/go#camera", { use_frustum = true })
+render.draw(predicates.particle)
+render.set_camera()
+```
+
+Particle FX emitters are culled against their bounds when either of these methods is used.
+
+Frustum culling is implemented in the engine per component type. Current status:
+
+| Component   | Supported |
+|-------------|-----------|
+| Sprite      | YES       |
+| Model       | YES       |
+| Mesh        | YES (1)   |
+| Label       | YES       |
+| Spine       | YES       |
+| Particle fx | YES       |
+| Tilemap     | YES       |
+| Rive        | NO        |
+
+1 = Mesh bounding box needs to be set by the developer. [Learn more](https://defold.com/llms/manuals/mesh.md).
+
+Starting with Defold 1.13.0, component primitives use counter-clockwise vertex winding, with the primitive normal pointing towards the camera. Sprites, GUI nodes, tilemaps (tilegrids), and Particle FX use the same winding as other component types, so the same face-culling settings can be used for all components.
+
+This may affect projects that set face culling for components other than models. If a component is unexpectedly culled, make sure back faces are selected with `render.set_cull_face(graphics.FACE_TYPE_BACK)`, or remove the `render.set_cull_face()` call to use the default `graphics.FACE_TYPE_BACK` mode.
+
+## Coordinate systems
+
+When components are rendered you usually talk of in which coordinate system the components are rendered. In most games you have some components drawn in world space and some in screen space.
+
+GUI components and their nodes are usually drawn in the screen space coordinate, with the bottom left corner of the screen having coordinate (0,0) and the top right corner is (screen width, screen height). The screen space coordinate system is never offset or in some other way translated by a camera. This will keep the GUI nodes always drawn on screen regardless of how the world is rendered.
+
+Sprites, tilemaps and other components used by game objects that exist in your game world are usually drawn in the world space coordinate system. If you make no modifications to your render script and use no camera component to change the view projection this coordinate system is the same as the screen space coordinate system, but as soon as you add a camera and either move it around or change the view projection the two coordinate systems will deviate. When the camera is moving the lower left corner of the screen will be offset from (0, 0) so that other parts of the world is rendered. If the projection changes the coordinates will be both translated (ie offset from 0, 0) and modified by a scale factor.
+
+## The render script
+
+Below is the code for a custom render script that is a slightly modified version of the built-in one.
+
+init()
+: The function `init()` is used to set up the predicates, the view and clear color. These variables will be used during the actual rendering.
+```lua
+function init(self)
+    -- Define the render predicates. Each predicate is drawn by itself and
+    -- that allows us to change the state of OpenGL between the draws.
+    self.predicates = create_predicates("tile", "gui", "text", "particle", "model")
+
+    -- Create and fill data tables will be used in update()
+    local state = create_state()
+    self.state = state
+    local camera_world = create_camera(state, "camera_world", true)
+    init_camera(camera_world, get_stretch_projection)
+    local camera_gui = create_camera(state, "camera_gui")
+    init_camera(camera_gui, get_gui_projection)
+    update_state(state)
+end
+```
+
+update()
+: The `update()` function is called once each frame. Its function is to perform the actual drawing by calling the underlying OpenGL ES APIs (OpenGL Embedded Systems API). To properly understand what's going on in the `update()` function, you need to understand how OpenGL works. There are many great resources on OpenGL ES available. The official site is a good starting place. You find it at https://www.khronos.org/opengles/
+
+  This example contains the setup necessary to draw 3D models. The `init()` function defined a `self.predicates.model` predicate. Elsewhere a material with the tag "model" has been created. There are also some model components that use the material:
+```lua
+function update(self)
+    local state = self.state
+     if not state.valid then
+        if not update_state(state) then
+            return
+        end
+    end
+
+    local predicates = self.predicates
+    -- clear screen buffers
+    --
+    render.set_depth_mask(true)
+    render.set_stencil_mask(0xff)
+    render.clear(state.clear_buffers)
+
+    local camera_world = state.cameras.camera_world
+    render.set_viewport(0, 0, state.window_width, state.window_height)
+    render.set_view(camera_world.view)
+    render.set_projection(camera_world.proj)
+
+
+    -- render models
+    --
+    render.set_blend_func(graphics.BLEND_FACTOR_SRC_ALPHA, graphics.BLEND_FACTOR_ONE_MINUS_SRC_ALPHA)
+    render.enable_state(graphics.STATE_CULL_FACE)
+    render.enable_state(graphics.STATE_DEPTH_TEST)
+    render.set_depth_mask(true)
+    render.draw(predicates.model_pred)
+    render.set_depth_mask(false)
+    render.disable_state(graphics.STATE_DEPTH_TEST)
+    render.disable_state(graphics.STATE_CULL_FACE)
+
+     -- render world (sprites, tilemaps, particles etc)
+     --
+    render.set_blend_func(graphics.BLEND_FACTOR_SRC_ALPHA, graphics.BLEND_FACTOR_ONE_MINUS_SRC_ALPHA)
+    render.enable_state(graphics.STATE_DEPTH_TEST)
+    render.enable_state(graphics.STATE_STENCIL_TEST)
+    render.enable_state(graphics.STATE_BLEND)
+    render.draw(predicates.tile)
+    render.draw(predicates.particle)
+    render.disable_state(graphics.STATE_STENCIL_TEST)
+    render.disable_state(graphics.STATE_DEPTH_TEST)
+
+    -- debug
+    render.draw_debug3d()
+
+    -- render GUI
+    --
+    local camera_gui = state.cameras.camera_gui
+    render.set_view(camera_gui.view)
+    render.set_projection(camera_gui.proj)
+    render.enable_state(graphics.STATE_STENCIL_TEST)
+    render.draw(predicates.gui, camera_gui.frustum)
+    render.draw(predicates.text, camera_gui.frustum)
+    render.disable_state(graphics.STATE_STENCIL_TEST)
+end
+```
+
+So far this is a simple and straightforward render script. It draws in the same manner every single frame. However, it is sometimes desirable to be able to introduce state into the render script and perform different operations depending on the state. It may also be desirable to communicate with the render script from other parts of the game code.
+
+on_message()
+: A render script can define an `on_message()` function and receive messages from other parts of your game or app. A common case where an external component sends information to the render script is the _camera_. A camera component that has acquired camera focus will automatically send its view and projection to the render script each frame. This message is named `"set_view_projection"`:
+```lua
+local MSG_CLEAR_COLOR =         hash("clear_color")
+local MSG_WINDOW_RESIZED =      hash("window_resized")
+local MSG_SET_VIEW_PROJ =       hash("set_view_projection")
+
+function on_message(self, message_id, message)
+    if message_id == MSG_CLEAR_COLOR then
+        -- Someone sent us a new clear color to be used.
+        update_clear_color(state, message.color)
+    elseif message_id == MSG_SET_VIEW_PROJ then
+        -- The camera component that has camera focus will sent set_view_projection
+        -- messages to the @render socket. We can use the camera information to
+        -- set view (and possibly projection) of the rendering.
+        camera.view = message.view
+        self.camera_projection = message.projection or vmath.matrix4()
+        update_camera(camera, state)
+    end
+end
+```
+
+However, any script of GUI script can send messages to the render script though the special `@render` socket:
+```lua
+-- Change the clear color.
+msg.post("@render:", "clear_color", { color = vmath.vector4(0.3, 0.4, 0.5, 0) })
+```
+
+## Render Resources
+To pass in certain engine resources into the render script, you can add these into the `Render Resources` table in the `.render` file assigned to the project:
+
+Using these resources in a render script:
+```lua
+-- "my_material" will now be used for all draw calls associated with the predicate
+render.enable_material("my_material")
+-- anything drawn by the predicate will end up in "my_render_target"
+render.set_render_target("my_render_target")
+render.draw(self.my_full_screen_predicate)
+render.set_render_target(render.RENDER_TARGET_DEFAULT)
+render.disable_material()
+
+-- bind the render target result texture to whatever is getting rendered via the predicate
+render.enable_texture(0, "my_render_target", graphics.BUFFER_TYPE_COLOR0_BIT)
+render.draw(self.my_tile_predicate)
+```
+
+Defold currently only supports `Materials` and `Render Targets` as referenced render resources, but over time more resource types will be supported by this system.
+
+### Multisampled render targets
+
+Render targets support multisample anti-aliasing (MSAA). This smooths geometry edges in an offscreen render pass. The target's sample count is independent of [Display ▸ Samples](https://defold.com/llms/manuals/project-settings.md), which controls anti-aliasing for the window.
+
+For a `.render_target` resource, set **Sample Count** in the editor to `1`, `2`, `4`, `8` or `16`. A value of `1` disables multisampling. Add the resource to your `.render` file's **Render Resources** table and use its assigned name with `render.set_render_target()`, as in the example above.
+
+Alternatively, create a target in your render script's `init()`. Put `sample_count` in the outer parameter table, alongside the attachments:
+```lua
+self.offscreen = render.render_target({
+    sample_count = 4,
+    [graphics.BUFFER_TYPE_COLOR0_BIT] = {
+        format = graphics.TEXTURE_FORMAT_RGBA,
+        width = 1024,
+        height = 1024,
+        min_filter = graphics.TEXTURE_FILTER_LINEAR,
+        mag_filter = graphics.TEXTURE_FILTER_LINEAR,
+        u_wrap = graphics.TEXTURE_WRAP_CLAMP_TO_EDGE,
+        v_wrap = graphics.TEXTURE_WRAP_CLAMP_TO_EDGE,
+    },
+})
+self.scene_predicate = render.predicate({"scene"})
+self.present_predicate = render.predicate({"present"})
+```
+
+This example uses a color-only target. All color, depth and stencil attachments in a target share its sample count. Add a depth attachment and the usual depth-test state if the pass requires depth testing.
+
+For the following `update()` fragment, give the scene materials the `scene` tag and a full-screen quad's material the `present` tag. The quad's material must sample texture unit `0`. Set the appropriate view and projection for each pass:
+```lua
+render.set_render_target(self.offscreen)
+render.set_viewport(0, 0, 1024, 1024)
+render.clear({[graphics.BUFFER_TYPE_COLOR0_BIT] = vmath.vector4(0, 0, 0, 1)})
+-- Set the scene view and projection here.
+render.draw(self.scene_predicate)
+
+render.set_render_target(render.RENDER_TARGET_DEFAULT)
+render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
+-- Set the full-screen quad view and projection here.
+render.enable_texture(0, self.offscreen, graphics.BUFFER_TYPE_COLOR0_BIT)
+render.draw(self.present_predicate)
+render.disable_texture(0)
+```
+
+Switching away from the target finishes the pass and resolves its multisampled color attachments automatically. `render.enable_texture()` binds the resolved color texture, so the quad uses an ordinary texture sampler. No separate resolve command is required.
+
+The requested sample count defaults to `1` and must be a positive integer. Graphics backends reduce unsupported requests to a supported power-of-two count, falling back to `1` if necessary, and log a warning when the count changes. Higher sample counts increase the memory needed for the attachments.
+
+When using a render target resource, inspect its effective count from a game object `.script` with `resource.get_render_target_info()`. For example, after adding `/render/offscreen.render_target` to **Render Resources**:
+```lua
+function init(self)
+    local info = resource.get_render_target_info("/render/offscreen.render_targetc")
+    print("Render target sample count:", info.sample_count)
+end
+```
+
+Use this effective count when checking device support instead of assuming that the requested count was available. See [`render.render_target()`](https://defold.com/ref/beta/render/#render.render_target:parameters) and [`resource.get_render_target_info()`](https://defold.com/ref/beta/resource/#resource.get_render_target_info:path) for the full parameter and result tables.
+
+## Texture handles
+
+Textures in Defold are represented internally as a handle, which essentially equates to a number that should uniquely identify a texture object anywhere in the engine. This means that you can bridge the gameobject world with the rendering world by passing these handles between the render system and a gameobject script. For example, a script can create a dynamic texture in a script attached to a gameobject and send this to the renderer to be used as a global texture in a draw command.
+
+In a `.script` file:
+```lua
+local my_texture_resource = resource.create_texture("/my_texture.texture", tparams)
+-- note: my_texture_resource is a hash to the resource path, which can't be used as a handle!
+local my_texture_handle = resource.get_texture_info(my_texture_resource)
+-- my_texture_handle contains information about the texture, such as width, height and so on
+-- it does also contain the handle, which is what we are after
+msg.post("@render:", "set_texture", { handle = my_texture_handle.handle })
+```
+
+In a `.render_script` file:
+```lua
+function on_message(self, message_id, message)
+    if message_id == hash("set_texture") then
+        self.my_texture = message.handle
+    end
+end
+
+function update(self)
+    -- bind the custom texture to the draw state
+    render.enable_texture(0, self.my_texture)
+    -- do drawing..
+end
+```
+
+There is currently no way of changing which texture a resource should point to, you can only use raw handles like this in the render script.
+
+## Supported graphics APIs
+The Defold render script API translates render operations into the following graphics APIs:
+
+| System   | Graphics API               | Note                     |
+|----------|----------------------------|--------------------------|
+| macOS    | Metal, OpenGL 3.3 or Vulkan | Metal is the default since Defold 1.14.0; Vulkan via MoltenVK |
+| Windows  | OpenGL 3.3 or Vulkan 1.1   |                          |
+| Linux x86-64 | OpenGL 3.3 or Vulkan 1.1 |                        |
+| Linux ARM64  | OpenGL ES or Vulkan 1.1   | EGL/GLES is the default |
+| Android  | OpenGLES 3.0 or Vulkan 1.1 | Fallback to OpenGLES 2.0 |
+| iOS devices | OpenGLES 3.0, Metal or Vulkan | OpenGLES is the default; Vulkan via MoltenVK |
+| iOS simulator | Metal                | Always Metal since Defold 1.14.0 |
+| HTML5    | WebGL 2.0 or WebGPU        | Fallback to WebGL 1.0    |
+
+## System messages
+
+`"set_view_projection"`
+: This message is sent from camera components that has acquired camera focus.
+
+`"window_resized"`
+: The engine will send this message on changes of the window size. You can listen to this message to alter rendering when the target window size changes. On desktop this means that the actual game window has been resized and on mobile devices this message is sent whenever an orientation change happens.
+```lua
+local MSG_WINDOW_RESIZED =      hash("window_resized")
+
+function on_message(self, message_id, message)
+  if message_id == MSG_WINDOW_RESIZED then
+    -- The window was resized. message.width and message.height contain the new dimensions.
+    ...
+  end
+end
+```
+
+`"draw_line"`
+: Draw debug line. Use to visualize `ray_casts`, vectors and more. Lines are drawn with the `render.draw_debug3d()` call.
+```lua
+-- draw a white line
+local p1 = vmath.vector3(0, 0, 0)
+local p2 = vmath.vector3(1000, 1000, 0)
+local col = vmath.vector4(1, 1, 1, 1)
+msg.post("@render:", "draw_line", { start_point = p1, end_point = p2, color = col } )
+```
+
+`"draw_text"`
+: Draw debug text. Use to print debug information. The text is drawn with the built-in `always_on_top.font` font. The system font has a material with tag `debug_text` and is rendered with other text in the default render script.
+```lua
+-- draw a text message
+local pos = vmath.vector3(500, 500, 0)
+msg.post("@render:", "draw_text", { text = "Hello world!", position = pos })
+```
+
+The visual profiler accessible through the `"toggle_profile"` message sent to the `@system` socket is not part of the scriptable renderer. It is drawn separate from your render script.
+
+## Draw calls and batching
+
+A draw call is the term used to describe the process of setting up the GPU to draw an object to the screen using a texture and a material with optional additional settings. This process is usually resource intensive and it is recommended that the number of draw calls are as few as possible. You can measure the number of the draw calls and the time it takes to render them using the [built-in profiler](https://defold.com/llms/manuals/profiling.md).
+
+Defold will try to batch render operation to reduce the number of draw calls according to a set of rules defined below. The rules differ between GUI components and all other component types.
+
+### Batch rules for non-GUI components
+
+Each `render.draw()` call controls how matching world-ordered entries are sorted. The default is `render.SORT_BACK_TO_FRONT`; use `render.SORT_FRONT_TO_BACK` for near-to-far rendering, or `render.SORT_NONE` to retain insertion order:
+```lua
+render.draw(self.opaque_predicate, {
+    sort_order = render.SORT_FRONT_TO_BACK
+})
+render.draw(self.transparent_predicate, {
+    sort_order = render.SORT_BACK_TO_FRONT
+})
+```
+
+The selected order determines which entries are adjacent and can therefore affect batching. In that ordered list, each object is grouped into the same draw call as the previous object if the following conditions are met:
+
+* Belongs to the same collection proxy
+* Is of the same component type (sprite, particle fx, tilemap etc)
+* Uses the same texture (atlas or tile source)
+* Has the same material
+* Has the same shader constants (such as tint)
+
+This means that if two sprite components in the same collection proxy are adjacent after the selected sort, and use the same texture, material, and constants, they will be grouped into the same draw call.
+
+### Batch rules for GUI components
+
+Rendering of the nodes in a GUI component are done from top to bottom of the node list. Each node in the list will be grouped into the same draw call as the previous node if the following conditions are met:
+
+* Is of the same type (box, text, pie etc)
+* Uses the same texture (atlas or tile source)
+* Has the same blend mode.
+* Has the same font (only for text nodes)
+* Has the same stencil settings
+
+Rendering of nodes are done per component. This means that nodes from different GUI components will not be batched.
+
+The ability to arrange nodes in hierarchies makes it easy to group nodes into manageable units. But hierarchies can effectively break batch rendering if you mix different node types. It is possible to more effectively batch GUI nodes while maintaining node hierarchies using GUI layers. You can read more about GUI layers and how they affect draw calls in the [GUI manual](https://defold.com/llms/manuals/gui#layers-and-draw-calls.md).
